@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="header">
-      <div class="address_map" @click="$router.push({name: 'address',params: {city: city}})">
+      <div class="address_map" @click="$router.push('/address')">
         <i class="fa fa-map-marker"></i>
         <span>{{address}}</span>
         <i class="fa fa-sort-desc"></i>
@@ -15,7 +15,12 @@
 </template>
 <script>
 export default {
-    
+    name:"home",
+    computed: {
+    address() {
+      return this.$store.getters.address;
+    }
+  }
 }
 </script>
 
