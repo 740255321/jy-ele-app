@@ -1,28 +1,83 @@
 <template>
-  <div class="address">
-      <Header title="请选择收货地址" :isLeft="true" ></Header>
-      <div class="caty_search">
+  <div class="address"> 
+      <Header :isLeft="true" title="选择收货地址"/>
+      <div class="city_search">
           <div class="search">
-              <span class="city">
+              <span class="city" @click="$router.push('/city')">
                   {{city}}
-                  <i class="fa fa-angle-dow"></i>
+                  <i class="fa fa-angle-down"></i>
               </span>
+              <i class="fa fa-search"></i>
+              <input type="text" v-model="search_val" placeholder="小区/写字楼/学校"> 
+          </div>
+          <Location  :address="address"/>
+          <div class="area">
+              <ul class="area_list" v-for="(item,index) in areaList" :key="index">
+                  <li @click="selectAddress(item)">
+                    <h4>{{item.name}}</h4>
+                    <p>{{item.destrict}}{{item.address}}</p>
+                  </li>
+              </ul>
           </div>
       </div>
   </div>
 </template>
 <script>
 import Header from '../components/Header'
+import Location from '../components/Location'
+
 export default {
     name:"Address",
     data(){
         return{
-            city:"成都",  //当前的城市
-            search_val:""
+            city:"",  //当前的城市
+            search_val:"",   //搜索内容
+            areaList:[]
+        }
+    },
+    computed:{
+        address(){
+            return this.$store.getters.location.formattedAddress
+        }
+    },
+    watch:{
+        search_val(){
+            this.searchPlace()
+        }
+    },
+    methods:{
+        searchPlace(){  
+            const self = this
+            AMap.plugin('AMap.Autocomplete', function(){
+                // 实例化Autocomplete
+                var autoOptions = {
+                    //city 限定城市，默认全国
+                    city: self.city
+                }
+                var autoComplete= new AMap.Autocomplete(autoOptions);
+                autoComplete.search(self.search_val, function(status, result) {
+                    // 搜索成功时，result即是对应的匹配数据
+                    // console.log(result)
+                    self.areaList = result.tips
+                })
+            })
+        },
+        selectAddress(item){
+            // 设置地址
+            this.$store.dispatch("setAddress",item.district + item.address + item.name)
+            // 跳转
+            this.$router.push("/home")
         }
     },
     components:{
-        Header
+        Header,
+        Location
+    },
+    beforeRouteEnter(to,from,next){
+        next(vm => {
+            // 离开Address组件获取位置信息
+            vm.city = to.params.city
+        })
     }
 }
 </script>
@@ -34,5 +89,45 @@ export default {
     overflow: auto;
     box-sizing: border-box;
     padding-top: 45px;
+}
+.city_search {
+  background-color: #fff;
+  padding: 10px 20px;
+  color: #333;
+}
+
+.search {
+  background-color: #eee;
+  height: 40px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  line-height: 40px;
+}
+.search .city {
+  padding: 0 10px;
+}
+.city i {
+  margin-right: 10px;
+}
+.search input {
+  margin-left: 5px;
+  background-color: #eee;
+  outline: none;
+  border: none;
+}
+
+.area {
+  margin-top: 16px;
+  background: #fff;
+}
+.area li {
+  border-bottom: 1px solid #eee;
+  padding: 8px 16px;
+  color: #aaa;
+}
+.area li h4 {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
 }
 </style>

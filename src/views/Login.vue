@@ -60,15 +60,15 @@ export default {
       handleLogin(){
         // 取消错误提醒
         this.errors = {}
-        // if(!/^1[345678]\d{9}$/.test(this.phone)){
-        //   this.errors = {
-        //     phone:"请填写正确手机号"
-        //   }
-        //   return false
-        // }else{
+        if(!/^1[345678]\d{9}$/.test(this.phone)){
+          this.errors = {
+            phone:"请填写正确手机号"
+          }
+          return false
+        }else{
             // 发送请求
           this.$axios
-            .post("/api/posts/sms_send",{
+            .post("/api/posts/sms_back",{
               phone:this.phone,
               code:this.verifyCode
           })
@@ -85,7 +85,7 @@ export default {
               code : err.response.data.msg
             }
           })
-        // }
+        }
       },
       getVerifyCode(){      //获取验证码方法
         if(this.validatePhone()){

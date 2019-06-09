@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <div class="header">
-      <div class="address_map" @click="$router.push('/address')">
+    <div class="header">  
+      <div class="address_map" @click="$router.push({name: 'address',params:{city:city}})">
         <i class="fa fa-map-marker"></i>
         <span>{{address}}</span>
         <i class="fa fa-sort-desc"></i>
@@ -16,15 +16,20 @@
 <script>
 export default {
     name:"home",
-    computed: {
-    address() {
-      return this.$store.getters.address;
+    computed:{
+      address(){
+        // 显示地位地址
+        return this.$store.getters.address
+      },
+      city(){
+        // 获取城市或省份
+        return this.$store.getters.location.addressComponent.city || this.$store.getters.location.addressComponent.province
+      }
     }
-  }
 }
 </script>
 
-<style>
+<style scoped>
 .home {
   width: 100%;
   height: 100%;
