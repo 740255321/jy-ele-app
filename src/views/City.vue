@@ -7,11 +7,11 @@
             </div>
             <button @click="$router.go(-1)">取消</button>
         </div>
-        <div>
+        <div style="height:100%">
             <div class="location">
                 <Location :address="city"/>
             </div>
-            <Alphabet :cityInfo="cityInfo" :keys="keys"/>
+            <Alphabet @selectCity="selectCity" ref="allcity" :cityInfo="cityInfo" :keys="keys" />
         </div>
     </div>   
 </template>
@@ -52,10 +52,17 @@ export default {
                 this.keys.pop()
                 // 排序
                 this.keys.sort()
+                this.$nextTick(() => {
+                  this.$refs.allcity.initScroll()
+                })
             })
             .catch(err => {
                 console.log(err)
             })
+        },
+        // 点击城市获取对应的地址信息
+        selectCity(){
+          this.$router.push({ name: "address", params: { city: city.name} });
         }
     }
 }
@@ -97,21 +104,19 @@ export default {
   outline: none;
   color: #009eef;
 }
-
 .location {
   background: #fff;
   padding: 8px 16px;
   height: 65px;
   box-sizing: border-box;
 }
-
-/* .search_list {
+.search_list {
   background: #fff;
   padding: 5px 16px;
 }
 .search_list li {
   padding: 10px;
   border-bottom: 1px solid #eee;
-} */
+} 
 
 </style>
