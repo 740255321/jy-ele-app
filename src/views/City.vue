@@ -61,7 +61,7 @@ export default {
             })
         },
         // 点击城市获取对应的地址信息
-        selectCity(){
+        selectCity(city){
           this.$router.push({ name: "address", params: { city: city.name} });
         }
     }
