@@ -5,13 +5,18 @@
                 <i class="fa fa-search"></i>
                 <input type="text" placeholder="输入城市名" v-model="city_val">
             </div>
-            <button @click="$router.go(-1)">取消</button>
+            <button @click="$router.push({name:'address',params:{city:city}})">取消</button>
         </div>
-        <div style="height:100%">
+        <div style="height:100%" v-if="searchList.length == 0">
             <div class="location">
-                <Location :address="city"/>
+                <Location :address="city" @click="selectCity({name:city})"/>
             </div>
             <Alphabet @selectCity="selectCity" ref="allcity" :cityInfo="cityInfo" :keys="keys" />
+        </div>
+        <div class="search_list" v-else>
+          <ul>
+            <li @click="selectCity(item)" v-for="(item,index) in searchList" :key="index">{{item.name}}</li>
+          </ul>
         </div>
     </div>   
 </template>
@@ -24,7 +29,9 @@ export default {
         return{
             city_val:"",
             cityInfo:null,
-            keys:[]
+            keys:[],
+            allCities:[],
+            searchList:[]
         }
     },
     components:{
@@ -35,6 +42,12 @@ export default {
       city(){
         // 获取城市或省份
         return this.$store.getters.location.addressComponent.city || this.$store.getters.location.addressComponent.province
+      }
+    },
+    watch:{
+      city_val(){
+        // console.log(this.city_val)  监听city_val
+        this.searchCity()  //查询city
       }
     },
     created(){
@@ -55,6 +68,15 @@ export default {
                 this.$nextTick(() => {
                   this.$refs.allcity.initScroll()
                 })
+                // 存储所有城市,用来搜索过滤
+                this.keys.forEach(key => {
+                    // console.log(key)    //打印A-Z
+                    // console.log(this.cityInfo) 
+                    this.cityInfo[key].forEach(city =>{
+                      // console.log(city)  //打印所有的城市
+                      this.allCities.push(city)
+                    })
+                })
             })
             .catch(err => {
                 console.log(err)
@@ -63,6 +85,19 @@ export default {
         // 点击城市获取对应的地址信息
         selectCity(city){
           this.$router.push({ name: "address", params: { city: city.name} });
+        },
+        // 查询city
+        searchCity(){
+          if(!this.city_val){
+            // 如果搜索框为空 数组置空
+            this.searchList = []
+          }else{
+            // 根据输入框的关键字检索城市,并存入searchList数组中
+            this.searchList = this.allCities.filter(item => {
+              return item.name.indexOf(this.city_val) != -1
+            })
+            // console.log(this.searchList)  打印匹配输入关键字城市
+          }
         }
     }
 }
